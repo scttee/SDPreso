@@ -47,7 +47,7 @@ Yes — this project can be deployed to Railway as a standard Next.js app.
 3. Select this repository and branch.
 4. Railway will detect Node/Next.js and run:
    - build: `npm install && npm run build`
-   - start: `npm run start`
+   - start: `node .next/standalone/server.js`
 5. After first deploy, open the generated Railway domain.
 
 ### Recommended environment
@@ -58,3 +58,13 @@ Yes — this project can be deployed to Railway as a standard Next.js app.
 - `railway.json` is included to make deploy behavior explicit.
 - No database or external services are required for this presentation build.
 - For custom domains, attach your domain in Railway project settings.
+
+
+### Railway deployment troubleshooting
+If deployment fails on Railway, the most common cause is process start mismatch for Next.js. This project now uses `output: "standalone"` and starts with `node .next/standalone/server.js` for better platform compatibility.
+
+Checklist:
+1. Confirm Railway service uses Node 20+ (repo includes `.nvmrc`).
+2. Confirm build logs include `next build` success.
+3. Confirm start command is `node .next/standalone/server.js`.
+4. Redeploy after clearing build cache if Railway reused an old build artifact.
