@@ -58,3 +58,21 @@ body { font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif; }
 @media (prefers-reduced-motion: reduce) {
   .reveal, .line-in, .deck-bg::before, .float-orb { animation: none !important; }
 }
+
+/* authored sketch layer */
+.paper-grain::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.18;
+  background-image: radial-gradient(rgba(255,255,255,.35) .55px, transparent .55px);
+  background-size: 3px 3px;
+  mix-blend-mode: soft-light;
+}
+
+.sketch-underline{position:relative;display:inline-block}
+.sketch-underline::after{content:'';position:absolute;left:-2%;right:-2%;bottom:-10px;height:14px;border-bottom:3px solid rgba(255,199,141,.9);border-radius:48% 52% 42% 58%/60% 35% 65% 40%;transform:rotate(-1.4deg);opacity:.9;animation:lineIn .9s var(--ease) both}
+
+.sketch-frame{position:relative}
+.sketch-frame::before,.sketch-frame::after{content:'';position:absolute;inset:-9px;border:1px dashed rgba(198,213,255,.32);border-radius:22px;pointer-events:none}
+.sketch-frame::after{inset:-5px;border-style:solid;border-color:rgba(255,255,255,.12);transform:rotate(-.5deg)}
+
+.poster-chip{display:inline-block;padding:.2rem .55rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
+.scribble-arrow{position:absolute;width:120px;height:40px;border-top:2px solid rgba(255,255,255,.45);border-right:2px solid rgba(255,255,255,.45);border-radius:100%;transform:rotate(8deg);opacity:.7}
