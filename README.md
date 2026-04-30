@@ -86,3 +86,24 @@ If Railway was failing with `npm install && npm run build` exit code 1:
 1. Redeploy using the latest commit.
 2. Clear build cache in Railway.
 3. Confirm Railway detects `builder: DOCKERFILE`.
+
+## Integrated audience interactions
+This presentation now includes in-app QR interactions (no third-party polling tool):
+- Early poll: `/interact/breakdown`
+- Design lens check-in: `/interact/lens`
+- Workshop form: `/interact/workshop`
+- Final takeaway capture: `/interact/takeaway`
+- Presenter live view: `/presenter`
+
+### How it works now (mock/demo mode)
+- Data is stored in browser `localStorage` and synced across tabs with `BroadcastChannel`.
+- This is ideal for local demo and presentation rehearsals.
+- In production with multiple devices, replace `lib/store.ts` with a shared backend.
+
+### Backend upgrade paths
+You can swap persistence to:
+1. Supabase: insert/select rows from `poll_votes`, `workshop_submissions`, `takeaways`.
+2. Firebase: use Firestore collections with live listeners.
+3. Next API routes: post votes/submissions to `/api/*` and store in a database.
+
+The app is structured so `lib/interactions.ts` holds poll/workshop definitions and `lib/store.ts` is the only persistence layer to replace.

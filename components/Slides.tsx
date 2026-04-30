@@ -1,5 +1,8 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import { loadState, subscribe, State, emptyState } from '@/lib/store';
+import { polls } from '@/lib/interactions';
 import { slides } from '@/content/slides';
 
 const tokens = {
@@ -41,8 +44,13 @@ export default function Slides() {
   const [current, setCurrent] = useState(0);
   const [overview, setOverview] = useState(false);
   const [present, setPresent] = useState(false);
+  const [live, setLive] = useState<State>(emptyState);
+  const [showLens, setShowLens] = useState(true);
   const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
 
+
+  useEffect(() => { setLive(loadState()); return subscribe(setLive); }, []);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (['ArrowRight', ' '].includes(e.key)) refs.current[Math.min(current + 1, slides.length - 1)]?.scrollIntoView({ behavior: 'smooth' });
@@ -72,5 +80,19 @@ export default function Slides() {
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
-  return <div className='deck-bg text-[#161a1f]'><div className='fixed top-0 left-0 h-[2px] bg-[#274d8a] z-40 transition-all duration-500' style={{width:`${progress}%`, transitionTimingFunction:tokens.ease}}/><button onClick={()=>setOverview(v=>!v)} className='fixed top-5 right-4 text-[11px] uppercase tracking-[0.14em] border border-slate/35 bg-white/75 px-3 py-2 z-40'>Index</button><button onClick={()=>setPresent(v=>!v)} className='fixed top-5 right-24 text-[11px] uppercase tracking-[0.14em] border border-slate/35 bg-white/75 px-3 py-2 z-40'>{present?'Exit':'Present'}</button>{overview && <aside className='fixed z-40 top-16 right-4 bg-white/92 border border-slate/25 p-4 max-h-[72vh] overflow-auto w-80 backdrop-blur-sm'><p className='text-xs uppercase tracking-[0.15em] text-slate mb-3'>Slide index</p>{slides.map((s,i)=><button key={s.id} className={`block w-full text-left text-sm py-2 border-b border-slate/10 ${i===current?'text-[#274d8a]':''}`} onClick={()=>refs.current[i]?.scrollIntoView({behavior:'smooth'})}>{String(i+1).padStart(2,'0')} · {s.title}</button>)}</aside>}<main id='deck-scroll' className='snap-x snap-mandatory h-screen overflow-x-scroll overflow-y-hidden relative z-10 flex'>{slides.map((slide,i)=><section data-i={i} key={slide.id} ref={(el) => { refs.current[i] = el; }} className='snap-start min-h-screen min-w-full flex items-center'><div className='slide-shell max-w-6xl w-full mx-auto px-8 md:px-14 py-16 md:py-24'><p className='reveal text-[11px] uppercase tracking-[0.2em] text-slate mb-6'>{String(i+1).padStart(2,'0')} / {slides.length}</p><h1 className={`reveal text-4xl md:text-7xl font-semibold leading-[1.02] max-w-5xl ${i===0?'md:text-8xl':''}`}>{slide.title}</h1>{slide.subtitle && <p className='reveal reveal-delay-1 mt-5 text-lg md:text-2xl text-slate max-w-3xl'>{slide.subtitle}</p>}<div className='mt-10 md:mt-14 text-lg md:text-xl max-w-5xl'><SlideBody slide={slide}/></div></div></section>)}</main></div>;
+  return <div className='deck-bg text-[#161a1f]'><div className='fixed top-0 left-0 h-[2px] bg-[#274d8a] z-40 transition-all duration-500' style={{width:`${progress}%`, transitionTimingFunction:tokens.ease}}/><button onClick={()=>setOverview(v=>!v)} className='fixed top-5 right-4 text-[11px] uppercase tracking-[0.14em] border border-slate/35 bg-white/75 px-3 py-2 z-40'>Index</button><button onClick={()=>setPresent(v=>!v)} className='fixed top-5 right-24 text-[11px] uppercase tracking-[0.14em] border border-slate/35 bg-white/75 px-3 py-2 z-40'>{present?'Exit':'Present'}</button>{overview && <aside className='fixed z-40 top-16 right-4 bg-white/92 border border-slate/25 p-4 max-h-[72vh] overflow-auto w-80 backdrop-blur-sm'><p className='text-xs uppercase tracking-[0.15em] text-slate mb-3'>Slide index</p>{slides.map((s,i)=><button key={s.id} className={`block w-full text-left text-sm py-2 border-b border-slate/10 ${i===current?'text-[#274d8a]':''}`} onClick={()=>refs.current[i]?.scrollIntoView({behavior:'smooth'})}>{String(i+1).padStart(2,'0')} · {s.title}</button>)}</aside>}<main id='deck-scroll' className='snap-x snap-mandatory h-screen overflow-x-scroll overflow-y-hidden relative z-10 flex'>{slides.map((slide,i)=><section data-i={i} key={slide.id} ref={(el) => { refs.current[i] = el; }} className='snap-start min-h-screen min-w-full flex items-center'><div className='slide-shell max-w-6xl w-full mx-auto px-8 md:px-14 py-16 md:py-24'><p className='reveal text-[11px] uppercase tracking-[0.2em] text-slate mb-6'>{String(i+1).padStart(2,'0')} / {slides.length}</p><h1 className={`reveal text-4xl md:text-7xl font-semibold leading-[1.02] max-w-5xl ${i===0?'md:text-8xl':''}`}>{slide.title}</h1>{slide.subtitle && <p className='reveal reveal-delay-1 mt-5 text-lg md:text-2xl text-slate max-w-3xl'>{slide.subtitle}</p>}<InteractionBlock slideId={slide.id} origin={origin} live={live} showLens={showLens} setShowLens={setShowLens} /><div className='mt-10 md:mt-14 text-lg md:text-xl max-w-5xl'><SlideBody slide={slide}/></div></div></section>)}</main></div>;
 }
+
+
+function InteractionBlock({slideId,origin,live,showLens,setShowLens}:{slideId:string;origin:string;live:State;showLens:boolean;setShowLens:(v:boolean)=>void}){
+  if (!origin) return null;
+  if (slideId === 'provocation') return <PollPanel title={polls.breakdown.question} path='/interact/breakdown' origin={origin} results={live.polls.breakdown||{}} options={polls.breakdown.options} />;
+  if (slideId === 'constellation') return <div className='mt-6'><button onClick={()=>setShowLens(!showLens)} className='text-sm border px-3 py-1'>{showLens?'Hide':'Show'} design lens check-in</button>{showLens && <PollPanel title={polls.lens.question} path='/interact/lens' origin={origin} results={live.polls.lens||{}} options={polls.lens.options} />}</div>;
+  if (slideId === 'workshopintro') return <QRPanel title='Scan for mobile workshop page' url={`${origin}/interact/workshop`} />;
+  if (slideId === 'takeaway') return <div className='mt-6 grid md:grid-cols-[280px,1fr] gap-6 items-start'><QRPanel title='Scan for final commitment capture' url={`${origin}/interact/takeaway`} /><div className='flex flex-wrap gap-2'>{live.takeaways.slice(0,24).map(t=><span key={t.id} className='px-3 py-2 border border-slate/30 bg-white/60 text-sm'>{t.text}</span>)}</div></div>;
+  return null;
+}
+
+function QRPanel({title,url}:{title:string;url:string}){return <div className='mt-6 slide-panel rounded-xl p-4 inline-flex gap-4 items-center'><QRCodeSVG value={url} size={112} bgColor='transparent' fgColor='#161a1f'/><div><p className='text-sm uppercase tracking-[.14em] text-slate'>Audience interaction</p><p className='font-medium'>{title}</p><p className='text-xs text-slate mt-1'>{url}</p></div></div>}
+
+function PollPanel({title,path,origin,results,options}:{title:string;path:string;origin:string;results:Record<string,number>;options:string[]}){const total=Object.values(results).reduce((a,b)=>a+b,0); return <div className='mt-6 slide-panel rounded-xl p-4 grid md:grid-cols-[250px,1fr] gap-5'><div><QRCodeSVG value={`${origin}${path}`} size={140} bgColor='transparent' fgColor='#161a1f'/><p className='text-xs mt-2 text-slate'>{origin}{path}</p></div><div><p className='font-medium mb-3'>{title}</p><div className='space-y-2'>{options.map(o=>{const c=results[o]||0; const pct=total?Math.round((c/total)*100):0; return <div key={o}><div className='flex justify-between text-sm'><span>{o}</span><span>{pct}%</span></div><div className='h-2 bg-slate/15'><div className='h-2 bg-[#274d8a] transition-all duration-500' style={{width:`${pct}%`}}/></div></div>})}</div></div></div>}
