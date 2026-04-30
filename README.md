@@ -68,3 +68,11 @@ Checklist:
 2. Confirm build logs include `next build` success.
 3. Confirm start command is `node .next/standalone/server.js`.
 4. Redeploy after clearing build cache if Railway reused an old build artifact.
+
+
+### Railway iPad-friendly setup
+Because you are deploying from Railway (without local tooling), this repo is configured to force a compatible Node runtime in Railway builds:
+- `.nvmrc` pins `22.13.0`
+- `nixpacks.toml` sets `NIXPACKS_NODE_VERSION=22`
+
+If a previous deploy used an older Node image, click **Redeploy** and select **Clear build cache**.
