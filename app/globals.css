@@ -3,44 +3,58 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  --bg: #f2eee7;
-  --ink: #161a1f;
-  --mist: #dfe4e8;
-  --slate: #5b6978;
-  --cobalt: #274d8a;
-  --rust: #8a4a36;
+  --ink: #e8edf7;
+  --muted: #b7c3d7;
+  --panel: rgba(20, 28, 43, 0.46);
+  --panel-strong: rgba(20, 28, 43, 0.72);
+  --edge: rgba(173, 198, 255, 0.26);
+  --cobalt: #4f78ff;
+  --violet: #7a6cff;
+  --amber: #d58f58;
   --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
 }
 
-html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); }
+html, body { margin:0; padding:0; color:var(--ink); background:#080d17; }
 body { font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif; }
 
-.deck-bg::before {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+.deck-bg {
   background:
-    radial-gradient(1200px 700px at 10% -10%, rgba(39,77,138,.13), transparent 60%),
-    radial-gradient(1000px 600px at 90% 110%, rgba(138,74,54,.10), transparent 55%),
-    linear-gradient(rgba(91,105,120,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(91,105,120,.08) 1px, transparent 1px);
-  background-size: auto, auto, 32px 32px, 32px 32px;
-  animation: drift 18s var(--ease) infinite alternate;
+    radial-gradient(1200px 900px at -8% -15%, rgba(79,120,255,.32), transparent 55%),
+    radial-gradient(900px 750px at 104% 8%, rgba(122,108,255,.26), transparent 58%),
+    radial-gradient(900px 680px at 55% 108%, rgba(213,143,88,.22), transparent 63%),
+    linear-gradient(145deg, #070c16 0%, #0f1728 45%, #0d1323 100%);
+}
+.deck-bg::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: linear-gradient(rgba(181,204,255,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(181,204,255,.09) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(circle at center, black 42%, transparent 100%);
+  animation: shimmer 20s var(--ease) infinite alternate;
 }
 
-@keyframes drift { from { transform: translateY(0px);} to { transform: translateY(-10px);} }
-@keyframes rise { from {opacity:0; transform: translateY(20px) scale(.99);} to {opacity:1; transform: translateY(0) scale(1);} }
+.float-orb { position: fixed; border-radius:9999px; filter: blur(50px); pointer-events:none; z-index:1; opacity:.55; animation: floaty 18s var(--ease) infinite alternate; }
+.orb-a { width:260px; height:260px; left:6%; top:14%; background:radial-gradient(circle,#6a8bff,transparent 70%); }
+.orb-b { width:340px; height:340px; right:8%; top:30%; background:radial-gradient(circle,#9a72ff,transparent 70%); animation-delay: -4s; }
+.orb-c { width:300px; height:300px; left:38%; bottom:8%; background:radial-gradient(circle,#d58f58,transparent 70%); animation-delay: -9s; }
+
+@keyframes shimmer { from { opacity:.42; transform: translateY(0);} to { opacity:.68; transform: translateY(-8px);} }
+@keyframes floaty { from { transform: translate3d(0,0,0);} to { transform: translate3d(0,-18px,0);} }
+@keyframes rise { from {opacity:0; transform: translateY(18px) scale(.985);} to {opacity:1; transform: translateY(0) scale(1);} }
 @keyframes lineIn { from { transform: scaleX(0); opacity:.2;} to {transform: scaleX(1); opacity:1;} }
 
-.reveal { animation: rise .7s var(--ease) both; }
-.reveal-delay-1 { animation-delay: .08s; }
-.reveal-delay-2 { animation-delay: .16s; }
-.reveal-delay-3 { animation-delay: .24s; }
-.line-in { transform-origin: left; animation: lineIn .8s var(--ease) both; }
+.reveal { animation: rise .8s var(--ease) both; }
+.reveal-delay-1 { animation-delay: .1s; }
+.line-in { transform-origin:left; animation: lineIn 1s var(--ease) both; }
 
-.slide-shell { position: relative; z-index: 2; }
-.slide-panel { background: rgba(255,255,255,.52); border: 1px solid rgba(91,105,120,.22); box-shadow: 0 20px 45px rgba(0,0,0,.08); }
+.glass-card {
+  background: linear-gradient(165deg, rgba(255,255,255,.2), rgba(255,255,255,.06));
+  border: 1px solid var(--edge);
+  box-shadow: 0 24px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  backdrop-filter: blur(16px) saturate(130%);
+}
+
+.slide-shell { position:relative; z-index:3; }
 
 @media (prefers-reduced-motion: reduce) {
-  .deck-bg::before, .reveal, .line-in { animation: none !important; }
-  html { scroll-behavior: auto !important; }
+  .reveal, .line-in, .deck-bg::before, .float-orb { animation: none !important; }
 }
