@@ -76,3 +76,4 @@ body { font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif; }
 
 .poster-chip{display:inline-block;padding:.2rem .55rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase}
 .scribble-arrow{position:absolute;width:120px;height:40px;border-top:2px solid rgba(255,255,255,.45);border-right:2px solid rgba(255,255,255,.45);border-radius:100%;transform:rotate(8deg);opacity:.7}
+.yp-chip{padding:.24rem .6rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:linear-gradient(90deg,rgba(122,108,255,.35),rgba(79,120,255,.3));backdrop-filter:blur(8px);letter-spacing:.08em;text-transform:uppercase}
