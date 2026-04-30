@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg: #f2eee7;
+  --ink: #161a1f;
+  --mist: #dfe4e8;
+  --slate: #5b6978;
+  --cobalt: #274d8a;
+  --rust: #8a4a36;
+  --ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+
+html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); }
+body { font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif; }
+
+.deck-bg::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 10% -10%, rgba(39,77,138,.13), transparent 60%),
+    radial-gradient(1000px 600px at 90% 110%, rgba(138,74,54,.10), transparent 55%),
+    linear-gradient(rgba(91,105,120,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,105,120,.08) 1px, transparent 1px);
+  background-size: auto, auto, 32px 32px, 32px 32px;
+  animation: drift 18s var(--ease) infinite alternate;
+}
+
+@keyframes drift { from { transform: translateY(0px);} to { transform: translateY(-10px);} }
+@keyframes rise { from {opacity:0; transform: translateY(20px) scale(.99);} to {opacity:1; transform: translateY(0) scale(1);} }
+@keyframes lineIn { from { transform: scaleX(0); opacity:.2;} to {transform: scaleX(1); opacity:1;} }
+
+.reveal { animation: rise .7s var(--ease) both; }
+.reveal-delay-1 { animation-delay: .08s; }
+.reveal-delay-2 { animation-delay: .16s; }
+.reveal-delay-3 { animation-delay: .24s; }
+.line-in { transform-origin: left; animation: lineIn .8s var(--ease) both; }
+
+.slide-shell { position: relative; z-index: 2; }
+.slide-panel { background: rgba(255,255,255,.52); border: 1px solid rgba(91,105,120,.22); box-shadow: 0 20px 45px rgba(0,0,0,.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-bg::before, .reveal, .line-in { animation: none !important; }
+  html { scroll-behavior: auto !important; }
+}
