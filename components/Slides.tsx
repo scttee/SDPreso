@@ -16,6 +16,17 @@ function SlideBody({ slide }: { slide: (typeof slides)[number] }) {
   const [timer, setTimer] = useState(300);
   const [running, setRunning] = useState(false);
 
+
+  useEffect(() => {
+    if (slide.type === 'diamond') {
+      const i = setInterval(() => setStage((s) => (s + 1) % 4), 2800);
+      return () => clearInterval(i);
+    }
+    if (slide.type === 'toggle') {
+      const i = setInterval(() => setInside((v) => !v), 3200);
+      return () => clearInterval(i);
+    }
+  }, [slide.type]);
   useEffect(() => {
     if (!running) return;
     const i = setInterval(() => setTimer((t) => Math.max(0, t - 1)), 1000);
@@ -49,7 +60,15 @@ export default function Slides() {
   const progress = useMemo(() => ((current + 1) / slides.length) * 100, [current]);
 
 
-  useEffect(() => { setLive(loadState()); return subscribe(setLive); }, []);
+  useEffect(() => {
+    setLive(loadState());
+    const i = setInterval(async () => {
+      const r = await fetch('/api/live');
+      const j = await r.json();
+      setLive((s) => ({ ...s, polls: j.polls || {} }));
+    }, 1200);
+    return () => clearInterval(i);
+  }, []);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -80,7 +99,7 @@ export default function Slides() {
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
-  return <div className='deck-bg paper-grain text-[#e8edf7]'><div className='float-orb orb-a'/><div className='float-orb orb-b'/><div className='float-orb orb-c'/><div className='fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[#4f78ff] via-[#7a6cff] to-[#d58f58] z-40 transition-all duration-500 shadow-[0_0_18px_rgba(79,120,255,.65)]' style={{width:`${progress}%`, transitionTimingFunction:tokens.ease}}/><button onClick={()=>setOverview(v=>!v)} className='fixed top-5 right-4 text-[11px] uppercase tracking-[0.14em] border border-white/25 bg-white/10 px-3 py-2 z-40'>Index</button><button onClick={()=>setPresent(v=>!v)} className='fixed top-5 right-24 text-[11px] uppercase tracking-[0.14em] border border-white/25 bg-white/10 px-3 py-2 z-40'>{present?'Exit':'Present'}</button>{overview && <aside className='fixed z-40 top-16 right-4 bg-white/92 border border-slate/25 p-4 max-h-[72vh] overflow-auto w-80 backdrop-blur-sm'><p className='text-xs uppercase tracking-[0.15em] text-[#b7c3d7] mb-3'>Slide index</p>{slides.map((s,i)=><button key={s.id} className={`block w-full text-left text-sm py-2 border-b border-slate/10 ${i===current?'text-[#274d8a]':''}`} onClick={()=>refs.current[i]?.scrollIntoView({behavior:'smooth'})}>{String(i+1).padStart(2,'0')} · {s.title}</button>)}</aside>}<main id='deck-scroll' className='snap-x snap-mandatory h-screen overflow-x-scroll overflow-y-hidden relative z-10 flex'>{slides.map((slide,i)=><section data-i={i} key={slide.id} ref={(el) => { refs.current[i] = el; }} className='snap-start min-h-screen min-w-full flex items-center'><div className='slide-shell max-w-6xl w-full mx-auto px-8 md:px-14 py-16 md:py-24'><p className='reveal text-[11px] uppercase tracking-[0.2em] text-[#b7c3d7] mb-6'><span className='poster-chip'>{String(i+1).padStart(2,'0')} / {slides.length} · {slide.chapter}</span></p><h1 className={`reveal text-5xl md:text-8xl font-semibold leading-[1.02] max-w-5xl ${i===0?'md:text-[7.5rem] sketch-underline':''}`}>{slide.title}</h1>{slide.subtitle && <p className='reveal reveal-delay-1 mt-5 text-lg md:text-2xl text-[#b7c3d7] max-w-3xl'>{slide.subtitle}</p>}<div className='scribble-arrow hidden md:block right-12 top-24'/><InteractionBlock slideId={slide.id} origin={origin} live={live} showLens={showLens} setShowLens={setShowLens} /><div className='mt-10 md:mt-14 text-lg md:text-xl max-w-5xl'><SlideBody slide={slide}/></div></div></section>)}</main></div>;
+  return <div className='deck-bg paper-grain text-[#e8edf7]'><div className='float-orb orb-a'/><div className='float-orb orb-b'/><div className='float-orb orb-c'/><div className='fixed top-0 left-0 h-[3px] bg-gradient-to-r from-[#4f78ff] via-[#7a6cff] to-[#d58f58] z-40 transition-all duration-500 shadow-[0_0_18px_rgba(79,120,255,.65)]' style={{width:`${progress}%`, transitionTimingFunction:tokens.ease}}/><button onClick={()=>setOverview(v=>!v)} className='fixed top-5 right-4 text-[11px] uppercase tracking-[0.14em] border border-white/25 bg-white/10 px-3 py-2 z-40'>Index</button><button onClick={()=>setPresent(v=>!v)} className='fixed top-5 right-24 text-[11px] uppercase tracking-[0.14em] border border-white/25 bg-white/10 px-3 py-2 z-40'>{present?'Exit':'Present'}</button>{overview && <aside className='fixed z-40 top-16 right-4 bg-white/92 border border-slate/25 p-4 max-h-[72vh] overflow-auto w-80 backdrop-blur-sm'><p className='text-xs uppercase tracking-[0.15em] text-[#b7c3d7] mb-3'>Slide index</p>{slides.map((s,i)=><button key={s.id} className={`block w-full text-left text-sm py-2 border-b border-slate/10 ${i===current?'text-[#274d8a]':''}`} onClick={()=>refs.current[i]?.scrollIntoView({behavior:'smooth'})}>{String(i+1).padStart(2,'0')} · {s.title}</button>)}</aside>}<main id='deck-scroll' className='snap-x snap-mandatory h-screen overflow-x-scroll overflow-y-hidden relative z-10 flex'>{slides.map((slide,i)=><section data-i={i} key={slide.id} ref={(el) => { refs.current[i] = el; }} className={`snap-start min-h-screen min-w-full flex items-center ${slide.chapter==='Why this matters'?'bg-black/10':slide.chapter==='The lens'?'bg-indigo-950/10':slide.chapter==='The method'?'bg-violet-950/10':'bg-amber-950/10'}`}><div className='slide-shell max-w-6xl w-full mx-auto px-8 md:px-14 py-16 md:py-24'><p className='reveal text-[11px] uppercase tracking-[0.2em] text-[#b7c3d7] mb-6'><span className='poster-chip'>{String(i+1).padStart(2,'0')} / {slides.length} · {slide.chapter}</span></p><h1 className={`reveal text-5xl md:text-8xl font-semibold leading-[1.02] max-w-5xl ${i===0?'md:text-[7.5rem] sketch-underline':''}`}>{slide.title}</h1>{slide.subtitle && <p className='reveal reveal-delay-1 mt-5 text-lg md:text-2xl text-[#b7c3d7] max-w-3xl'>{slide.subtitle}</p>}<div className='scribble-arrow hidden md:block right-12 top-24'/><InteractionBlock slideId={slide.id} origin={origin} live={live} showLens={showLens} setShowLens={setShowLens} /><div className='mt-10 md:mt-14 text-lg md:text-xl max-w-5xl'><SlideBody slide={slide}/></div></div></section>)}</main></div>;
 }
 
 
