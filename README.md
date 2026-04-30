@@ -76,3 +76,13 @@ Because you are deploying from Railway (without local tooling), this repo is con
 - `nixpacks.toml` sets `NIXPACKS_NODE_VERSION=22`
 
 If a previous deploy used an older Node image, click **Redeploy** and select **Clear build cache**.
+
+
+### Hardening deploys with Docker on Railway
+This repo now includes a production `Dockerfile` pinned to `node:22.13.0-alpine`.
+This avoids Nixpacks/runtime drift and ensures Railway builds with a known-good Node version.
+
+If Railway was failing with `npm install && npm run build` exit code 1:
+1. Redeploy using the latest commit.
+2. Clear build cache in Railway.
+3. Confirm Railway detects `builder: DOCKERFILE`.
